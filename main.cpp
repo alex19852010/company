@@ -25,10 +25,12 @@ public:
         int tasksCount = rand() % (team->workers.size() + 1);
         std::cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << std::endl;
 
+        std::vector<char> taskTypes = {'A', 'B', 'C'};
         for (int i = 0; i < tasksCount; i++) {
             int workerIndex = rand() % team->workers.size();
             Worker* worker = team->workers[workerIndex];
-            team->assignTask(worker);
+            char taskType = taskTypes[rand() % taskTypes.size()];
+            team->assignTask(worker, taskType);
         }
     }
 
@@ -43,8 +45,8 @@ private:
 
         explicit Team(std::vector<Worker*>& workers) : workers(workers) {}
 
-        void assignTask(Worker* worker) {
-            std::cout << "Worker " << worker->name << " received a task." << std::endl;
+        void assignTask(Worker* worker, char taskType) {
+            std::cout << "Worker " << worker->name << " received a task of type " << taskType << "." << std::endl;
         }
     };
 
@@ -76,9 +78,10 @@ private:
     std::vector<int> commands;
 };
 
+
 int main()
 {
-      int numCommands, numWorkers;
+    int numCommands, numWorkers;
     std::cout << "Enter the number of commands: ";
     std::cin >> numCommands;
     std::cout << "Enter the number of workers per command: ";
@@ -113,10 +116,5 @@ int main()
         delete manager;
     }
     delete ceo;  
-    
-     /* Программа начинается с запроса количества команд и количество работников в каждой команде. 
-Затем создаются менеджеры и рабочие, и им назначаются задачи на основе случайных чисел. В конце освобождается выделенная память.
-
-Обратите внимание, что в этом коде нет обработки ошибок и валидации пользовательского ввода. В реальном проекте это также следует учесть.*/
     return 0;
 }
