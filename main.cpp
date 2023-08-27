@@ -7,7 +7,7 @@
 
 using namespace std;
 
- class Worker {
+  class Worker {
 public:
     string name;
 
@@ -44,8 +44,7 @@ public:
      CEO(const string& name) : Worker(name) {}
 
     void startSimulation(int numCommands, int numWorkers) {
-        
-        
+               
         for (int i = 0; i < numCommands; i++) {
             string managerName = "Manager " + to_string(i + 1);
             Manager* manager = new Manager(managerName);
@@ -56,10 +55,15 @@ public:
                 Worker* worker = new Worker(workerName);
                 workers.push_back(worker);
             }
-
-           
+          
             manager->assignTasks(workers);
             cout << endl;
+            
+             // Удаление созданных объектов
+            for (Worker* worker : workers) {
+                delete worker;
+            }
+            delete manager;
         }
        
     }
@@ -77,6 +81,5 @@ int main()
     ceo->startSimulation(numCommands, numWorkers);
 
     delete ceo;
- 
     return 0;
 }
