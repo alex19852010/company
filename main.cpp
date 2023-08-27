@@ -36,7 +36,9 @@ public:
 
     void assignTask(Worker* worker, char taskType) {
         cout << "Worker " << worker->name << " received a task of type " << taskType << "." << endl;
+        
     }
+    
 };
 
 class CEO : public Worker {
@@ -48,10 +50,10 @@ public:
         vector<int> commands;
 
         for (int i = 0; i < numCommands; i++) {
-            string managerName = "Manager " + to_string(i);
+            string managerName = "Manager " + to_string(i + 1);
             Manager* manager = new Manager(managerName);
 
-            std::vector<Worker*> workers;
+            vector<Worker*> workers;
             for (int j = 0; j < numWorkers; j++) {
                 string workerName = "Worker " + to_string(i * numWorkers + j);
                 Worker* worker = new Worker(workerName);
@@ -61,7 +63,9 @@ public:
             managers.push_back(manager);
             commands.push_back(i);
             manager->assignTasks(i, workers);
+            cout << endl;
         }
+       
 
         // Освобождаем память
         for (Manager* manager : managers) {
@@ -75,7 +79,7 @@ int main()
     int numCommands, numWorkers;
     cout << "Enter the number of commands: ";
     cin >> numCommands;
-    cout << "Enter the number of workers per command: ";
+    cout << "Enter the number of workers in command: ";
     cin >> numWorkers;
 
     CEO* ceo = new CEO("CEO");
