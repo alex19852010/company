@@ -4,19 +4,18 @@
 #include <cstdlib>
 #include <ctime>
 
-
 using namespace std;
 
 class Worker {
 public:
     std::string name;
 
-    explicit Worker(const std::string& name) : name(name) {}
+     Worker(const string& name) : name(name) {}
 };
 
 class Manager : public Worker {
 public:
-    explicit Manager(const std::string& name) : Worker(name) {}
+     Manager(const string& name) : Worker(name) {}
 
     void assignTasks(int commandId) {
         int seed = commandId + this->name.length();
@@ -34,19 +33,29 @@ public:
         }
     }
 
-    void setTeam(std::vector<Worker*>& workers) {
+    void setTeam(vector<Worker*>& workers) {
         team = new Team(workers);
+    }
+
+    ~Manager() {
+        delete team;
     }
 
 private:
     class Team {
     public:
-        std::vector<Worker*> workers;
+        vector<Worker*> workers;
 
-        explicit Team(std::vector<Worker*>& workers) : workers(workers) {}
+         Team(std::vector<Worker*>& workers) : workers(workers) {}
 
         void assignTask(Worker* worker, char taskType) {
             std::cout << "Worker " << worker->name << " received a task of type " << taskType << "." << std::endl;
+        }
+
+        ~Team() {
+            for (Worker* worker : workers) {
+                delete worker;
+            }
         }
     };
 
@@ -55,13 +64,13 @@ private:
 
 class CEO : public Worker {
 public:
-    explicit CEO(const std::string& name) : Worker(name) {}
+     CEO(const std::string& name) : Worker(name) {}
 
-    void setManagers(std::vector<Manager*>& managers) {
+    void setManagers(vector<Manager*>& managers) {
         this->managers = managers;
     }
 
-    void setCommands(std::vector<int>& commands) {
+    void setCommands(vector<int>& commands) {
         this->commands = commands;
     }
 
@@ -73,30 +82,35 @@ public:
         }
     }
 
-private:
-    std::vector<Manager*> managers;
-    std::vector<int> commands;
-};
+    ~CEO() {
+        for (Manager* manager : managers) {
+            delete manager;
+        }
+    }
 
+private:
+    vector<Manager*> managers;
+    vector<int> commands;
+};
 
 int main()
 {
     int numCommands, numWorkers;
-    std::cout << "Enter the number of commands: ";
-    std::cin >> numCommands;
-    std::cout << "Enter the number of workers per command: ";
-    std::cin >> numWorkers;
+    cout << "Enter the number of commands: ";
+    cin >> numCommands;
+    cout << "Enter the number of workers per command: ";
+    cin >> numWorkers;
 
-    std::vector<Manager*> managers;
-    std::vector<int> commands;
+    vector<Manager*> managers;
+    vector<int> commands;
 
     for (int i = 0; i < numCommands; i++) {
-        std::string managerName = "Manager " + std::to_string(i);
+        string managerName = "Manager " + to_string(i);
         Manager* manager = new Manager(managerName);
 
         std::vector<Worker*> workers;
         for (int j = 0; j < numWorkers; j++) {
-            std::string workerName = "Worker " + std::to_string(i * numWorkers + j);
+            string workerName = "Worker " + to_string(i * numWorkers + j);
             Worker* worker = new Worker(workerName);
             workers.push_back(worker);
         }
@@ -111,10 +125,9 @@ int main()
     ceo->setCommands(commands);
     ceo->startSimulation();
 
-    // Освобождаем память
-    for (Manager* manager : managers) {
-        delete manager;
-    }
-    delete ceo;  
+    delete ceo;
+
+
+      
     return 0;
 }
