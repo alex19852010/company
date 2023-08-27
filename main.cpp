@@ -19,9 +19,7 @@ public:
      Manager(const string& name) : Worker(name) {}
 
     void assignTasks(int commandId, vector<Worker*>& workers) {
-        int seed = commandId + this->name.length();
-        srand(seed);
-
+      
         int tasksCount = rand() % (workers.size() + 1);
         cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << endl;
 
