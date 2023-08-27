@@ -41,7 +41,7 @@ public:
 
 class CEO : public Worker {
 public:
-    explicit CEO(const string& name) : Worker(name) {}
+     CEO(const string& name) : Worker(name) {}
 
     void startSimulation(int numCommands, int numWorkers) {
         vector<Manager*> managers;
