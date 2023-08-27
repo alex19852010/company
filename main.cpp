@@ -18,8 +18,8 @@ class Manager : public Worker {
 public:
      Manager(const string& name) : Worker(name) {}
 
-    void assignTasks(int commandId, vector<Worker*>& workers) {
-      
+     void assignTasks(vector<Worker*>& workers) {
+        
         int tasksCount = rand() % (workers.size() + 1);
         cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << endl;
 
@@ -44,9 +44,8 @@ public:
      CEO(const string& name) : Worker(name) {}
 
     void startSimulation(int numCommands, int numWorkers) {
-        vector<Manager*> managers;
-        vector<int> commands;
-
+        
+        
         for (int i = 0; i < numCommands; i++) {
             string managerName = "Manager " + to_string(i + 1);
             Manager* manager = new Manager(managerName);
@@ -58,17 +57,11 @@ public:
                 workers.push_back(worker);
             }
 
-            managers.push_back(manager);
-            commands.push_back(i);
-            manager->assignTasks(i, workers);
+           
+            manager->assignTasks(workers);
             cout << endl;
         }
        
-
-        // Освобождаем память
-        for (Manager* manager : managers) {
-            delete manager;
-        }
     }
 };
 
