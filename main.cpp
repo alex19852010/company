@@ -8,126 +8,107 @@ using namespace std;
 
 class Worker {
 public:
-    std::string name;
+    string name;
+    string task;
 
-     Worker(const string& name) : name(name) {}
+    Worker(const string& name) : name(name) {}
+
+    bool isTaskAssigned() {
+        return !task.empty();
+    }
 };
 
-class Manager : public Worker {
+class Team {
 public:
-     Manager(const string& name) : Worker(name) {}
+    vector<Worker*> workers;
 
-    void assignTasks(int commandId) {
-        int seed = commandId + this->name.length();
-        std::srand(seed);
-
-        int tasksCount = rand() % (team->workers.size() + 1);
-        std::cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << std::endl;
-
-        std::vector<char> taskTypes = {'A', 'B', 'C'};
-        for (int i = 0; i < tasksCount; i++) {
-            int workerIndex = rand() % team->workers.size();
-            Worker* worker = team->workers[workerIndex];
-            char taskType = taskTypes[rand() % taskTypes.size()];
-            team->assignTask(worker, taskType);
-        }
+    void addWorker(Worker* worker) {
+        workers.push_back(worker);
     }
 
-    void setTeam(vector<Worker*>& workers) {
-        team = new Team(workers);
-    }
-
-    ~Manager() {
-        delete team;
-    }
-
-private:
-    class Team {
-    public:
-        vector<Worker*> workers;
-
-         Team(std::vector<Worker*>& workers) : workers(workers) {}
-
-        void assignTask(Worker* worker, char taskType) {
-            std::cout << "Worker " << worker->name << " received a task of type " << taskType << "." << std::endl;
-        }
-
-        ~Team() {
-            for (Worker* worker : workers) {
-                delete worker;
+    bool allWorkersBusy() {
+        for (Worker* worker : workers) {
+            if (!worker->isTaskAssigned()) {
+                return false;
             }
         }
-    };
-
-    Team* team;
+        return true;
+    }
 };
 
-class CEO : public Worker {
+class Manager {
 public:
-     CEO(const std::string& name) : Worker(name) {}
+    string name;
 
-    void setManagers(vector<Manager*>& managers) {
-        this->managers = managers;
-    }
+    Manager(const string& name) : name(name) {}
 
-    void setCommands(vector<int>& commands) {
-        this->commands = commands;
-    }
+    void assignTasks(Team& team, int tasksCount) {
+        cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << endl;
 
-    void startSimulation() {
-        for (int command : commands) {
-            int managerIndex = command % managers.size();
-            Manager* manager = managers[managerIndex];
-            manager->assignTasks(command);
+        vector<char> taskTypes = {'A', 'B', 'C'};
+        int workerIndex = 0;
+
+        while (tasksCount > 0 && !team.allWorkersBusy()) {
+            Worker* worker = team.workers[workerIndex];
+            if (!worker->isTaskAssigned()) {
+                char taskType = taskTypes[rand() % taskTypes.size()];
+                worker->task = taskType;
+                cout << "Worker " << worker->name << " received a task of type " << taskType << "." << endl;
+                tasksCount--;
+            }
+            workerIndex = (workerIndex + 1) % team.workers.size();
         }
     }
+};
 
-    ~CEO() {
-        for (Manager* manager : managers) {
+class CEO {
+public:
+    string name;
+
+    CEO(const string& name) : name(name) {}
+
+    void startSimulation(int numCommands, int numWorkers) {
+        srand(time(0));
+
+        for (int i = 0; i < numCommands; i++) {
+            string managerName = "Manager " + to_string(i + 1);
+            Manager* manager = new Manager(managerName);
+
+            Team team;
+            for (int j = 0; j < numWorkers; j++) {
+                string workerName = "Worker " + to_string(i * numWorkers + j);
+                Worker* worker = new Worker(workerName);
+                team.addWorker(worker);
+            }
+
+            int tasksCount = rand() % (team.workers.size() + 1);
+            manager->assignTasks(team, tasksCount);
+            cout << endl;
+
+            // Удаление созданных объектов
+            for (Worker* worker : team.workers) {
+                delete worker;
+            }
             delete manager;
         }
-    }
 
-private:
-    vector<Manager*> managers;
-    vector<int> commands;
+    }
 };
+
 
 int main()
 {
     int numCommands, numWorkers;
     cout << "Enter the number of commands: ";
     cin >> numCommands;
-    cout << "Enter the number of workers per command: ";
+    cout << "Enter the number of workers in each command: ";
     cin >> numWorkers;
 
-    vector<Manager*> managers;
-    vector<int> commands;
-
-    for (int i = 0; i < numCommands; i++) {
-        string managerName = "Manager " + to_string(i);
-        Manager* manager = new Manager(managerName);
-
-        std::vector<Worker*> workers;
-        for (int j = 0; j < numWorkers; j++) {
-            string workerName = "Worker " + to_string(i * numWorkers + j);
-            Worker* worker = new Worker(workerName);
-            workers.push_back(worker);
-        }
-
-        manager->setTeam(workers);
-        managers.push_back(manager);
-        commands.push_back(i);
-    }
-
     CEO* ceo = new CEO("CEO");
-    ceo->setManagers(managers);
-    ceo->setCommands(commands);
-    ceo->startSimulation();
+    ceo->startSimulation(numCommands, numWorkers);
 
     delete ceo;
-
-
+    return 0;
       
     return 0;
 }
