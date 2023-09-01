@@ -4,82 +4,116 @@
 #include <cstdlib>
 #include <ctime>
 
-
 using namespace std;
 
-  class Worker {
+class Worker {
 public:
-    string name;
+  string name;
+  bool isBusy;
+  string taskType;
 
-     Worker(const string& name) : name(name) {}
+  Worker(const string& name) : name(name), isBusy(false), taskType("") {}
+
+  void setBusy(bool status, const string& task) {
+    isBusy = status;
+    taskType = task;
+  }
 };
 
 class Manager : public Worker {
 public:
-     Manager(const string& name) : Worker(name) {}
+  Manager(const string& name) : Worker(name) {}
 
-     void assignTasks(vector<Worker*>& workers) {
-        
-        int tasksCount = rand() % (workers.size() + 1);
-        cout << "Manager " << this->name << " assigned " << tasksCount << " tasks to the team." << endl;
-
-        vector<char> taskTypes = {'A', 'B', 'C'};
-        for (int i = 0; i < tasksCount; i++) {
-            int workerIndex = rand() % workers.size();
-            Worker* worker = workers[workerIndex];
-            char taskType = taskTypes[rand() % taskTypes.size()];
-            assignTask(worker, taskType);
-        }
+  void assignTasks(vector<Worker*>& workers, int command) {
+    int tasksCount = rand() % (command + 1);
+    cout << "Manager " << this->name << " assigned " << tasksCount << " tasks." << endl;
+    if (tasksCount == 0) {
+      return;  // If no tasks, return without assigning
     }
 
-    void assignTask(Worker* worker, char taskType) {
-        cout << "Worker " << worker->name << " received a task of type " << taskType << "." << endl;
-        
+    string taskTypes[3] = { "A", "B", "C" };
+
+    int assigned = 0;
+    for (Worker* worker : workers) {
+      if (!worker->isBusy) {
+        string task = taskTypes[rand() % 3];
+        worker->setBusy(true, task);
+        assigned++;
+        cout << "Worker " << worker->name << " is now busy with task type " << task << "." << endl;
+        if (assigned >= tasksCount) break;
+      }
     }
-    
+  }
 };
 
-class CEO : public Worker {
+class Boss {
 public:
-     CEO(const string& name) : Worker(name) {}
+  void giveCommand(vector<Manager*>& managers, vector<vector<Worker*>>& allWorkers) {
+    int command;
+    cout << "Enter the command number: ";
+    cin >> command;
 
-    void startSimulation(int numCommands, int numWorkers) {
-               
-        for (int i = 0; i < numCommands; i++) {
-            string managerName = "Manager " + to_string(i + 1);
-            Manager* manager = new Manager(managerName);
-
-            vector<Worker*> workers;
-            for (int j = 0; j < numWorkers; j++) {
-                string workerName = "Worker " + to_string(i * numWorkers + j);
-                Worker* worker = new Worker(workerName);
-                workers.push_back(worker);
-            }
-          
-            manager->assignTasks(workers);
-            cout << endl;
-            
-             // Удаление созданных объектов
-            for (Worker* worker : workers) {
-                delete worker;
-            }
-            delete manager;
-        }
-       
+    for (size_t i = 0; i < managers.size(); ++i) {
+      managers[i]->assignTasks(allWorkers[i], command);
     }
+  }
 };
 
-int main()
-{
-    int numCommands, numWorkers;
-    cout << "Enter the number of commands: ";
-    cin >> numCommands;
-    cout << "Enter the number of workers in command: ";
-    cin >> numWorkers;
+int main() {
+  srand(static_cast<unsigned int>(time(0)));
 
-    CEO* ceo = new CEO("CEO");
-    ceo->startSimulation(numCommands, numWorkers);
+  int numManagers, numWorkers;
+  cout << "Enter the number of managers: ";
+  cin >> numManagers;
+  cout << "Enter the number of workers for each manager: ";
+  cin >> numWorkers;
 
-    delete ceo;
-    return 0;
+  // Create workers and managers based on user input
+  vector<vector<Worker*>> allWorkers;
+  vector<Manager*> managers;
+
+  for (int i = 1; i <= numManagers; ++i) {
+    Manager* manager = new Manager("M" + to_string(i));
+    managers.push_back(manager);
+
+    vector<Worker*> workers;
+    for (int j = 1; j <= numWorkers; ++j) {
+      workers.push_back(new Worker("W" + to_string(i) + "_" + to_string(j)));
+    }
+    allWorkers.push_back(workers);
+  }
+
+  // Create boss
+  Boss boss;
+
+  bool allBusy = false;
+  while (!allBusy) {
+    boss.giveCommand(managers, allWorkers);
+
+    // Check if all workers are busy
+    allBusy = true;
+    for (const auto& workers : allWorkers) {
+      for (const auto& worker : workers) {
+        if (!worker->isBusy) {
+          allBusy = false;
+          break;
+        }
+      }
+      if (!allBusy) break;
+    }
+  }
+
+  cout << "All workers are busy. Program is terminating." << endl;
+
+  // Cleanup
+  for (const auto& workers : allWorkers) {
+    for (const auto& worker : workers) {
+      delete worker;
+    }
+  }
+  for (const auto& manager : managers) {
+    delete manager;
+  }
+
+  return 0;
 }
