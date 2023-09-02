@@ -11,7 +11,7 @@ class Team;
 class Manager;
 class Company;
 
-// Клас "Робітник"
+// Класс Роботник
 class Worker {
 private:
   string name;
@@ -31,7 +31,7 @@ public:
   bool getIsBusy() const { return isBusy; }
 };
 
-// Клас "Команда"
+// Класс Команда
 class Team {
 private:
   vector<Worker*> workers;
@@ -44,7 +44,7 @@ public:
   vector<Worker*> getWorkers() const { return workers; }
 };
 
-// Клас "Менеджер"
+// Класс Менеджер
 class Manager : public Worker {
 private:
   Team* team;
@@ -60,7 +60,7 @@ public:
   void assignTasks(int command) {
     if (team == nullptr) return;
 
-    // Обчислення кількості завдань
+    // вычисление количества задач
     int tasksCount = rand() % (team->getWorkers().size() + 1);
 
     string taskTypes[] = { "A", "B", "C" };
@@ -74,7 +74,7 @@ public:
   }
 };
 
-// Клас "Компанія" (ролі "Боса")
+// Класс "Компания" (роль "Босса")
 class Company {
 private:
   vector<Manager*> managers;
@@ -92,8 +92,8 @@ public:
 };
 
 int main() {
-  // Ініціалізація генератора випадкових чисел один раз при запуску програми
-  srand(static_cast<unsigned int>(time(0)));
+
+   srand(time(0));
 
   int numManagers, numWorkers;
   cout << "Enter the number of managers: ";
@@ -114,6 +114,7 @@ int main() {
       workers.push_back(worker);
       team->addWorker(worker);
     }
+
 
     allWorkers.push_back(workers);
     manager->setTeam(team);
@@ -140,7 +141,7 @@ int main() {
     }
   }
 
-  cout << "All workers are busy. Program is terminating." << endl;
+  cout << "All workers are busy. Program is completed." << endl;
 
   return 0;
 }
